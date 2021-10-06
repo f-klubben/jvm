@@ -23,24 +23,26 @@ def handle_cleaning(mail, subject, mail_date):
 
 def handle_mail(mail) -> bool:
   subject = None
-  subject_match = re.search('^Subject: (.*)$', mail)
+  print(mail)
+  subject_match = re.search('Subject: (.*)', mail)
   if subject_match:
     subject = subject_match.group(1)
+    print(subject)
 
-  mail_date_match = re.search('^Date: (.*)$', mail)
+  mail_date_match = re.search('Date: (.*)', mail)
   if mail_date_match:
     mail_date = mail_date_match.group(1)
   
   if not subject:
     return False
 
-  if subject_match.endswith('DispensedDrinkEvent'):
+  if subject.endswith('DispensedDrinkEvent'):
     handle_dispensed(mail, subject, mail_date)
-  elif subject_match.endswith('Drypbakke mangler'):
+  elif subject.endswith('Drypbakke mangler'):
     handle_driptray(mail, subject, mail_date)
-  elif subject_match.endswith('EVADTS status'):
+  elif subject.endswith('EVADTS status'):
     handle_status(mail, subject, mail_date)
-  elif subject_match.endswith('Rengørrings begivenhed'):
+  elif subject.endswith('Rengørrings begivenhed'):
     handle_cleaning(mail, subject, mail_date)
   else:
     return False
