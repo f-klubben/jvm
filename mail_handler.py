@@ -1,12 +1,16 @@
 import re
+from datetime import datetime
 
-def handle_mail(mail, subject, mail_date):
-  print('TODO: handle_mail')
-  pass
-
+# Handles the "DispensedDrinkEvent"
+# Each mail contains the 10 last DispensedDrinkEvent
 def handle_dispensed(mail, subject, mail_date):
-  print('TODO: handle_dispensed')
-  pass
+  # Parses a string like 06/10/2021 08:47:43:177  DispensedDrinkEvent  "Filter coffee" "succes" 
+  matches = re.findall(r"(\d+\/\d+\/\d+\s\d+:\d+:\d+:\d+)\s+DispensedDrinkEvent\s+\"(.+?)\"\s+\"(.+?)\"", mail)
+  for m in matches:
+    dispensed_date = datetime.strptime(m[0], '%d/%m/%Y %H:%M:%S:%f')
+    dispensed_product = m[1]
+    dispensed_status = m[2]
+    print(f'Dispensed {dispensed_status} - {dispensed_product} at {dispensed_date}')
 
 def handle_driptray(mail, subject, mail_date):
   print('TODO: handle_driptray')
@@ -23,7 +27,7 @@ def handle_cleaning(mail, subject, mail_date):
 
 def handle_mail(mail) -> bool:
   subject = None
-  print(mail)
+  
   subject_match = re.search('Subject: (.*)', mail)
   if subject_match:
     subject = subject_match.group(1)
