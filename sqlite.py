@@ -154,7 +154,7 @@ def insert_dispensed_drink_event(conn, d: DispensedEvent, p: Product):
     conn.commit()
 
 
-def get_products(conn) -> list[Product]:
+def get_products(conn):
     cur = conn.cursor()
     query = f'''
     SELECT
@@ -194,7 +194,7 @@ def get_products(conn) -> list[Product]:
     ]
 
 
-def ensure_product_names(conn, names: list[str]):
+def ensure_product_names(conn, names):
     cur = conn.cursor()
     rows = [(n,) for n in names]
     query = f'INSERT OR IGNORE INTO {PRODUCT_TABLE} (name) VALUES (?)'
@@ -218,7 +218,7 @@ def update_product_from_product(conn, p: Product):
     )
 
 
-def update_products_from_products(conn, products: list[Product]):
+def update_products_from_products(conn, products):
     cur = conn.cursor()
     query = f'SELECT localized_name FROM {PRODUCT_TABLE}'
     cur.execute(query)

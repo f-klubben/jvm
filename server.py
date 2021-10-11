@@ -19,7 +19,7 @@ def save_email(text, no):
     path = os.path.join(capture_dir, filename)
     with open(path, 'w') as f:
         f.write(text)
-    print('{filename} saved.')
+    print(f'{filename} saved.')
 
 
 class KaffeLogger(SMTPServer):
