@@ -1,6 +1,7 @@
 import sqlite3
 import os
 from models import Product, DispensedEvent, FillEvent, DispenserInfo
+from datetime import datetime, timedelta
 
 DB_FILE_NAME = 'db.sqlite3'
 
@@ -285,18 +286,27 @@ def update_machine_numbers(conn, m: DispenserInfo):
     )
     conn.commit()
 
+def add_sqlite_latency(text):
+    # Parses 2021-10-11 16:22:34.821000
+    orignal_dt = datetime.strptime(text, '%Y-%m-%d %H:%M:%S.%f')
+    # Adds 2 seconds to the timestamp
+    new_dt = orignal_dt + timedelta(seconds=2)
+    return new_dt.strftime('%Y-%m-%d %H:%M:%S.%f')
+
 
 def update_ingredient_estimate(conn, fill, filldate, cost_column, ingredient_name, estimate_column):
     cur = conn.cursor()
 
-    remove_query = f'SELECT SUM(?) as cost FROM {DISPENSED_EVENT_TABLE} WHERE timestamp >= ?'
-    cur.execute(remove_query, (cost_column, filldate))
+    remove_query = f'SELECT SUM({cost_column}) as cost FROM {DISPENSED_EVENT_TABLE} WHERE timestamp >= ?'
+    cur.execute(remove_query, (filldate,))
     cost = cur.fetchone()['cost']
     if cost is None:
         cost = 0
 
+    # Use datetime + 2 seconds because it should ignore the fill event right after the filldate
+    new_dt = add_sqlite_latency(filldate)
     add_query = f'SELECT SUM(value) as "add" FROM {FILL_EVENT_TABLE} WHERE timestamp >= ? AND ingredient = ?'
-    cur.execute(add_query, (filldate, ingredient_name))
+    cur.execute(add_query, (new_dt, ingredient_name))
     add = cur.fetchone()['add']
     if add is None:
         add = 0

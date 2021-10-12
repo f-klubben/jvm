@@ -11,16 +11,16 @@
         "name": "Café au lait sugar",
         "coffee_cost": 9.6,
         "milk_cost": 9.6,
-        "sugar_cost": 2.4,
-        "choco_cost": 0,
+        "sugar_cost": 0,
+        "choco_cost": 2.4,
         "localized_name": "Café au lait med sukker"
     },
     {
         "name": "Café choco",
         "coffee_cost": 9.6,
         "milk_cost": 0,
-        "sugar_cost": 0,
-        "choco_cost": 10.8,
+        "sugar_cost": 10.8,
+        "choco_cost": 0,
         "localized_name": "Café choco"
     },
     {
@@ -35,8 +35,8 @@
         "name": "Cappuccino sugar",
         "coffee_cost": 9.6,
         "milk_cost": 9.6,
-        "sugar_cost": 2,
-        "choco_cost": 0,
+        "sugar_cost": 0,
+        "choco_cost": 2,
         "localized_name": "Cappuccino med sukker"
     },
     {
@@ -59,16 +59,16 @@
         "name": "Espresso with sugar",
         "coffee_cost": 10.8,
         "milk_cost": 0,
-        "sugar_cost": 6,
-        "choco_cost": 0,
+        "sugar_cost": 0,
+        "choco_cost": 6,
         "localized_name": "Espresso med sukker"
     },
     {
         "name": "Espresso milk sugar",
         "coffee_cost": 10.8,
         "milk_cost": 2,
-        "sugar_cost": 6,
-        "choco_cost": 0,
+        "sugar_cost": 0,
+        "choco_cost": 6,
         "localized_name": "Espresso med sukker og mælk"
     },
     {
@@ -91,16 +91,16 @@
         "name": "Filter coffee sugar",
         "coffee_cost": 9.6,
         "milk_cost": 0,
-        "sugar_cost": 6,
-        "choco_cost": 0,
+        "sugar_cost": 0,
+        "choco_cost": 6,
         "localized_name": "Kaffe med sukker"
     },
     {
         "name": "Filter coffee milk sugar",
         "coffee_cost": 9.6,
         "milk_cost": 2,
-        "sugar_cost": 5,
-        "choco_cost": 0,
+        "sugar_cost": 0,
+        "choco_cost": 5,
         "localized_name": "Kaffe med sukker og mælk"
     },
     {
@@ -115,8 +115,8 @@
         "name": "Latte macchiato sugar",
         "coffee_cost": 9.6,
         "milk_cost": 15.6,
-        "sugar_cost": 2,
-        "choco_cost": 0,
+        "sugar_cost": 0,
+        "choco_cost": 2,
         "localized_name": "Latte macchiato med sukker"
     },
     {
@@ -139,40 +139,40 @@
         "name": "Coffee with sugar",
         "coffee_cost": 9.6,
         "milk_cost": 0,
-        "sugar_cost": 6,
-        "choco_cost": 0,
+        "sugar_cost": 0,
+        "choco_cost": 6,
         "localized_name": "Lungo med sukker"
     },
     {
         "name": "Coffee milk sugar",
         "coffee_cost": 9.6,
         "milk_cost": 2,
-        "sugar_cost": 6,
-        "choco_cost": 0,
+        "sugar_cost": 0,
+        "choco_cost": 6,
         "localized_name": "Lungo med sukker og mælk"
     },
     {
         "name": "Chocolate",
         "coffee_cost": 0,
         "milk_cost": 0,
-        "sugar_cost": 0,
-        "choco_cost": 24,
+        "sugar_cost": 24,
+        "choco_cost": 0,
         "localized_name": "Varm kakao"
     },
     {
         "name": "Choco lux",
         "coffee_cost": 0,
         "milk_cost": 7.2,
-        "sugar_cost": 0,
-        "choco_cost": 13.2,
+        "sugar_cost": 13.2,
+        "choco_cost": 0,
         "localized_name": "Varm kakao med mælk"
     },
     {
         "name": "Wiener melange",
         "coffee_cost": 9.6,
         "milk_cost": 4.8,
-        "sugar_cost": 3.6,
-        "choco_cost": 4.8,
+        "sugar_cost": 4.8,
+        "choco_cost": 3.6,
         "localized_name": "Wiener mélange"
     },
     {

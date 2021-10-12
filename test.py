@@ -4,10 +4,10 @@ from os.path import join, isfile
 
 DIR = 'test_mails'
 
-files = [join(DIR, f) for f in listdir(DIR) if f.endswith('.eml') and isfile(join(DIR, f))]
+files = [str(join(DIR, f)) for f in listdir(DIR) if f.endswith('.eml') and isfile(join(DIR, f))]
 
 
-for f in files:
+for f in sorted(files):
     with open(f, 'r') as e:
         if handle_mail(e.read()):
             # print(f'SUCCESS: correctly parse file: "{f}"')

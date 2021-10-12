@@ -31,7 +31,7 @@ class KaffeLogger(SMTPServer):
         text = data.decode('UTF-8')
         handle_mail(text)
         if CAPTURE:
-            save_email(text)
+            save_email(text, self.no)
             self.no += 1
 
 
