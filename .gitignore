@@ -1,4 +1,5 @@
 __pycache__
 test_mails
-db.sqlite3
+*.sqlite3
 venv
+*.sql
