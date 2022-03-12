@@ -4,16 +4,16 @@ from datetime import datetime
 
 def parse_evadts_date(text):
     # 211006*122610
-    return datetime.strptime(text, '%y%m%d*%H%M%S')
+    return datetime.strptime(text, "%y%m%d*%H%M%S")
 
 
 def parse_custom_evadts_date(text):
     # 20211006*122610
-    return datetime.strptime(text, '%Y%m%d*%H%M%S')
+    return datetime.strptime(text, "%Y%m%d*%H%M%S")
 
 
 def split_evadts_str(line):
-    return line.split('*')
+    return line.split("*")
 
 
 def parse_product_info(lines):
@@ -39,7 +39,7 @@ def parse_product_info(lines):
 
 def parse_machine_last_cleaned(line):
     split = split_evadts_str(line)
-    if split[1] != 'LAST CLEANED':
+    if split[1] != "LAST CLEANED":
         return None
     return parse_custom_evadts_date(line[17:])
 

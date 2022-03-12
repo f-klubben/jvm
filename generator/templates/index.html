@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>F-klubbens kaffemaskine</title>
+</head>
+<body>
+
+<header>
+  <h1>F-klubbens kaffemaskine</h1>
+  <p>Senest opdateret: {{update_time}}</p>
+  <p>Antal loggede udleveringer: {{recent_dispense[0]}}</p>
+  <p>Senest loggede udlevering: {{recent_dispense[1]}}</p>
+</header>
+
+<h2>Estimerede Fyldeforhold</h2>
+<p>Hvor fyldte er vores kaffemaskine faktisk??</p>
+<dl>
+  {% for ingredient in ingredients %}
+  <dt><label for="{{ingredient[0]}}">{{ingredient[1]}}:</label></dt>
+  <dd><progress id="{{ingredient[0]}}" value="{{ingredient[2]}}" max="{{ingredient[3]}}"></progress></dd>
+  {% endfor %}
+</dl>
+
+<h2>Statistik</h2>
+
+<dl>
+  <dt>Senest rengjort</dt>
+  <dd>{{ general[0] }}</dd>
+
+  <dt>Opsætningsdato</dt>
+  <dd>{{ general[1] }}</dd>
+  
+  <dt>Total produkter udleveret</dt>
+  <dd>{{ "{:,d}".format(general[2]) }}</dd>
+  
+  <dt>Total kaffebønner</dt>
+  <dd>{{ "%.2f"|format(general[3]) }} kg</dd>
+  
+  <dt>Total mælk</dt>
+  <dd>{{ "%.2f"|format(general[4]) }} kg</dd>
+  
+  <dt>Total chokolade</dt>
+  <dd>{{ "%.2f"|format(general[5]) }} kg</dd>
+  
+</dl>
+
+<h2>Mest populære produkter</h2>
+<p>Viser en tabel over de mest populære produkter den sidste måned</p>
+
+<table>
+<thead>
+  <tr>
+    <th>Navn</th>
+    <th>Antal gange udleveret</th>
+  </tr>
+</thead>  
+<tbody>
+{% for product in recents %}
+  <tr>
+    <td>{{product[0]}}</td>
+    <td>{{product[1]}}</td>
+  </tr>
+{% endfor %}
+</tbody>
+</table>
+
+<h2>Produkter</h2>
+<table>
+<thead>
+  <tr>
+    <th>Navn</th>
+    <th>Kaffebønner (g)</th>
+    <th>Chocolade (g)</th>
+    <th>Mælk (g)</th>
+    <th>Sukker (g)</th>
+    <th>Antal gange udleveret</th>
+  </tr>
+</thead>  
+<tbody>
+{% for product in products %}
+  <tr>
+    <td>{{product[0]}}</td>
+    <td>{{product[1]}}</td>
+    <td>{{product[2]}}</td>
+    <td>{{product[3]}}</td>
+    <td>{{product[4]}}</td>
+    <td>{{product[5]}}</td>
+  </tr>
+{% endfor %}
+</tbody>
+</table>
+
+
+</body>
+</html>
+
+

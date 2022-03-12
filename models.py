@@ -31,29 +31,42 @@ class Product(object):
         self.localized_name = localized_name
 
     def __repr__(self):
-        return f'Product(id={self.id},name={self.name})'
+        return f"Product(id={self.id},name={self.name})"
 
 
 class DispensedEvent(object):
     """docstring for DispensedEvent"""
 
-    def __init__(self, timestamp, status):
+    def __init__(self, dispensed_date, status, insert_date):
         super(DispensedEvent, self).__init__()
-        self.timestamp = timestamp
+        self.dispensed_date = dispensed_date
         self.status = status
+        self.insert_date = insert_date
 
 
 class FillEvent(object):
     """docstring for FillEvent"""
 
-    def __init__(self, timestamp, ingredient, value):
+    def __init__(self, fill_date, insert_date, ingredient, value):
         super(FillEvent, self).__init__()
-        self.timestamp = timestamp
+        self.fill_date = fill_date
+        self.insert_date = insert_date
         self.ingredient = ingredient
         self.value = value
 
     def __repr__(self):
-        return f'FillEvent(timestamp={self.timestamp},ingredient={self.ingredient},value={self.value})'
+        return f"FillEvent(timestamp={self.timestamp},ingredient={self.ingredient},value={self.value})"
+
+
+class IngredientLevel(object):
+    """An ingredient level"""
+
+    def __init__(self, level_date, insert_date, ingredient, value):
+        super(IngredientLevel, self).__init__()
+        self.level_date = level_date
+        self.insert_date = insert_date
+        self.ingredient = ingredient
+        self.value = value
 
 
 class DispenserInfo(object):

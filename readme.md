@@ -21,6 +21,9 @@ The project uses [Black](https://github.com/psf/black) for formatting the code.
 black --target-version py36 --line-length 120 --skip-string-normalization *.py
 ```
 
+## Systemd service
+See [jvm-logger.service](jvm-logger.service) for an example service.
+
 ### Technical details
 
 #### Intercepting mails
@@ -39,3 +42,6 @@ This complicates the collection of metrics to use in statistics.
 As such, the project creates estimates based on 2 other mails:
 * `DrinkDispensedEvent`: A mail sent every time a drink is dispensed. Each of these events has a cost associated with them in the `Product`-table.
 * `MenuParameter`: A mail sent every time a menu parameter has been changed. Whenever the coffeemachine has had X amount added to it, this mail will reflect it.
+
+#### Generation of statistics
+Inside [generator](generator) there is a script which queries the database and creates a HTML report page.

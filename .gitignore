@@ -2,4 +2,4 @@ __pycache__
 test_mails
 *.sqlite3
 venv
-*.sql
+generator/html
