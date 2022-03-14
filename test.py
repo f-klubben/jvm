@@ -27,7 +27,7 @@ def ingest_emails():
 
 
 def correct_database_timestamps():
-    con = sqlite3.connect(DB_FILE)
+    con = sqlite3.connect(str(DB_FILE))
     cur = con.cursor()
     test_migration = CURR_DIR / "migrations" / "99_fix_test_db.sql"
     with open(test_migration) as f:
