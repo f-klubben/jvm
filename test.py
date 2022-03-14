@@ -16,7 +16,7 @@ def ingest_emails():
     files = [str(join(DIR, f)) for f in listdir(DIR) if f.endswith(".eml") and isfile(join(DIR, f))]
 
     for f in sorted(files):
-        with open(f, "r") as e:
+        with open(f, mode="r", encoding="utf-8") as e:
             handled, subject = handle_mail(e.read())
             if handled:
                 # print(f'SUCCESS: correctly parse file: "{f}"')
