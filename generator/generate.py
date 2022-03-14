@@ -81,7 +81,7 @@ def generate_coffee_report(sqlite_path: str):
                 general=general,
                 ingredients=ingredients,
                 recent_dispense=recent_dispense,
-            )
+            ).encode("utf8")
         )
 
 
