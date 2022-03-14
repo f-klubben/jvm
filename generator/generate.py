@@ -71,7 +71,7 @@ def generate_coffee_report(sqlite_path: str):
     template = env.get_template("index.html")
 
     html_path = CURR_DIR / "html" / "index.html"
-    with open(html_path, "w") as file:
+    with open(html_path, mode="wb") as file:
         file.write(
             template.render(
                 name="Kaffe",
@@ -81,7 +81,7 @@ def generate_coffee_report(sqlite_path: str):
                 general=general,
                 ingredients=ingredients,
                 recent_dispense=recent_dispense,
-            ).encode("utf8")
+            ).encode("utf-8")
         )
 
 
