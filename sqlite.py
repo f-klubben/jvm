@@ -19,9 +19,9 @@ INGREDIENT_LEVEL_TABLE = "jvm_ingredient_level"
 
 def create_db_conn():
     if os.path.exists(DB_FILE_NAME):
-        conn = sqlite3.connect(DB_FILE_NAME)
+        conn = sqlite3.connect(str(DB_FILE_NAME))
     else:
-        conn = sqlite3.connect(DB_FILE_NAME)
+        conn = sqlite3.connect(str(DB_FILE_NAME))
         setup_database(conn)
     conn.row_factory = sqlite3.Row
     return conn
