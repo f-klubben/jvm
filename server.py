@@ -7,6 +7,7 @@ import sys
 import os
 from datetime import datetime, timedelta
 from config import get_server_settings
+from sqlite import get_sqlite_database
 
 CONFIG = get_server_settings()
 
@@ -41,12 +42,11 @@ class KaffeLogger(SMTPServer):
         text = data.decode("UTF-8")
         handled, _ = handle_mail(text)
         if self.capture == "ALL" or ((not handled) and self.capture == "UNPARSED"):
-            print(f"{self.capture=}")
-            print(f"{handled}")
             save_email(text, self.no)
             self.no += 1
         if (datetime.now() - self.last_update) >= timedelta(minutes=15):
             update_statistics()
+            generate.generate_coffee_report(get_sqlite_database())
             self.last_update = datetime.now()
 
 

@@ -26,5 +26,5 @@ def get_db_file():
 
 
 if __name__ == "__main__":
-    print(f"{get_server_settings()=}")
-    print(f"{get_db_file()=}")
+    print(f"get_server_settings()={get_server_settings()}")
+    print(f"get_db_file()={get_db_file()}")

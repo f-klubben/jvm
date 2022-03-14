@@ -21,6 +21,7 @@ from evadts import (
     parse_ingredient_dispensed,
     parse_free_vends,
 )
+from generator import generate
 
 # Handles the "DispensedDrinkEvent"
 # Each mail contains the 10 last DispensedDrinkEvent
