@@ -6,8 +6,9 @@ from smtpd import SMTPServer
 import sys
 import os
 from datetime import datetime, timedelta
+from config import get_server_settings
 
-CAPTURE = False
+CONFIG = get_server_settings()
 
 
 def save_email(text, no):
@@ -26,6 +27,7 @@ def save_email(text, no):
 class KaffeLogger(SMTPServer):
     no = 0
     last_update = datetime.now()
+    capture = CONFIG["capture"].upper()
 
     def process_message(
         self,
@@ -37,23 +39,25 @@ class KaffeLogger(SMTPServer):
         rcpt_options=[],
     ):
         text = data.decode("UTF-8")
-        unhandled, subject = handle_mail(text)
-        if CAPTURE:
+        handled, _ = handle_mail(text)
+        if self.capture == "ALL" or ((not handled) and self.capture == "UNPARSED"):
+            print(f"{self.capture=}")
+            print(f"{handled}")
             save_email(text, self.no)
             self.no += 1
-        if (datetime.now() - last_update) >= timedelta(minutes=15):
+        if (datetime.now() - self.last_update) >= timedelta(minutes=15):
             update_statistics()
-            last_update = datetime.now()
+            self.last_update = datetime.now()
 
 
 def run():
     # start the smtp server on 0.0.0.0:1025
-    ip = "0.0.0.0"
-    port = 2525
+    ip = CONFIG["ip"]
+    port = CONFIG["port"]
+    capture = CONFIG["capture"]
     foo = KaffeLogger((ip, port), None)
     print(f"Now listening for mails on ip: {ip}, port {port}")
-    if CAPTURE:
-        print("Capting ALL emails.")
+    print(f"Capturing emails: {capture}")
     try:
         asyncore.loop()
     except KeyboardInterrupt:
@@ -61,7 +65,4 @@ def run():
 
 
 if __name__ == "__main__":
-    if sys.argv[1]:
-        if sys.argv[1].lower() == "capture":
-            CAPTURE = True
     run()

@@ -4,8 +4,10 @@ from models import Product, DispensedEvent, FillEvent, DispenserInfo, Ingredient
 from datetime import datetime, timedelta
 from decimal import Decimal
 from config import get_db_file
+from pathlib import Path
 
-DB_FILE_NAME = get_db_file()
+CURR_DIR = Path(__file__).parent.resolve()
+DB_FILE_NAME = CURR_DIR / get_db_file()
 
 DISPENSED_EVENT_TABLE = "jvm_dispensed_event"
 PRODUCT_TABLE = "jvm_product"
@@ -23,6 +25,11 @@ def create_db_conn():
         setup_database(conn)
     conn.row_factory = sqlite3.Row
     return conn
+
+
+# For usage in test
+def get_sqlite_database():
+    return DB_FILE_NAME
 
 
 def setup_database(conn):
@@ -282,9 +289,7 @@ def insert_fill_event(conn, e: FillEvent):
 def update_ingredient_level(conn, ilevel: IngredientLevel):
     cur = conn.cursor()
     query = f"INSERT OR IGNORE INTO {INGREDIENT_LEVEL_TABLE} (level_date, insert_date, ingredient, value) VALUES (?, ?, ?, ?)"
-    cur.execute(
-        query, (ilevel.level_date, ilevel.insert_date, ilevel.ingredient, ilevel.value)
-    )
+    cur.execute(query, (ilevel.level_date, ilevel.insert_date, ilevel.ingredient, ilevel.value))
     conn.commit()
 
 
@@ -380,6 +385,4 @@ def update_ingredient_estimates(conn):
         ingredient = fill_level[0]
         insert_date = fill_level[1]
         value = fill_level[2]
-        update_ingredient_estimate(
-            conn, fill=value, filldate=insert_date, ingredient_name=ingredient
-        )
+        update_ingredient_estimate(conn, fill=value, filldate=insert_date, ingredient_name=ingredient)
