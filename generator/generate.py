@@ -54,7 +54,7 @@ CURR_DIR = Path(__file__).parent.resolve()
 
 
 def generate_coffee_report(sqlite_path: str):
-    con = sqlite3.connect(sqlite_path)
+    con = sqlite3.connect(str(sqlite_path))
     cur = con.cursor()
     cur.execute(PRODUCT_STMT)
     products = cur.fetchall()

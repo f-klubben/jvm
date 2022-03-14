@@ -56,7 +56,7 @@ def setup_database(conn):
 
     default_products_file = "default.json"
     if os.path.exists(default_products_file):
-        with open(default_products_file, "r") as f:
+        with open(default_products_file, mode="r", encoding="utf-8") as f:
             import json
 
             default_products = json.load(f)
