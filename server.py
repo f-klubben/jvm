@@ -8,6 +8,7 @@ import os
 from datetime import datetime, timedelta
 from config import get_server_settings
 from sqlite import get_sqlite_database
+from generator import generate
 
 CONFIG = get_server_settings()
 
