@@ -18,7 +18,7 @@
 <dl>
   {% for ingredient in ingredients %}
   <dt><label for="{{ingredient[0]}}">{{ingredient[1]}}:</label></dt>
-  <dd><progress id="{{ingredient[0]}}" value="{{ingredient[2]}}" max="{{ingredient[3]}}"></progress></dd>
+  <dd><progress id="{{ingredient[0]}}" value="{{ingredient[2]}}" max="{{ingredient[3]}}"></progress><p>{{ingredient[2]}} / {{ingredient[3]}} gram</p></dd>
   {% endfor %}
 </dl>
 
