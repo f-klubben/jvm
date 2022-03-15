@@ -1,11 +1,14 @@
 [Unit]
-Description=My test service
+Description=Coffee statistics generator
 After=multi-user.target
 
 [Service]
 Type=simple
 Restart=always
-ExecStart=/usr/bin/python3 /<path>/server.py
+User=coffee
+Group=coffee
+ExecStart=/home/coffee/jvm/venv/bin/python3 /home/coffee/jvm/server.py
+WorkingDirectory=/home/coffee/jvm
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=multi-target.target
