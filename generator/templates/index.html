@@ -3,6 +3,26 @@
 <head>
 <title>F-klubbens kaffemaskine</title>
 <meta charset="utf-8"/>
+<style type="text/css">
+tbody tr:nth-child(odd) {
+  background: #eee;
+}
+table {
+  border-collapse: collapse;
+}
+
+td, th {
+  border: 1px solid #999;
+  padding: 0.5rem;
+  text-align: left;
+}
+body {
+  font-family: Sans-Serif;
+}
+.right {
+  text-align: right;
+}
+</style>
 </head>
 <body>
 
@@ -52,14 +72,14 @@
 <thead>
   <tr>
     <th>Navn</th>
-    <th>Antal gange udleveret</th>
+    <th class="right">Antal gange udleveret</th>
   </tr>
 </thead>  
 <tbody>
 {% for product in recents %}
   <tr>
     <td>{{product[0]}}</td>
-    <td>{{product[1]}}</td>
+    <td class="right">{{product[1]}}</td>
   </tr>
 {% endfor %}
 </tbody>
@@ -70,22 +90,22 @@
 <thead>
   <tr>
     <th>Navn</th>
-    <th>Kaffebønner (g)</th>
-    <th>Chocolade (g)</th>
-    <th>Mælk (g)</th>
-    <th>Sukker (g)</th>
-    <th>Antal gange udleveret</th>
+    <th class="right">Kaffebønner (g)</th>
+    <th class="right">Chocolade (g)</th>
+    <th class="right">Mælk (g)</th>
+    <th class="right">Sukker (g)</th>
+    <th class="right">Antal gange udleveret</th>
   </tr>
 </thead>  
 <tbody>
 {% for product in products %}
   <tr>
     <td>{{product[0]}}</td>
-    <td>{{product[1]}}</td>
-    <td>{{product[2]}}</td>
-    <td>{{product[3]}}</td>
-    <td>{{product[4]}}</td>
-    <td>{{product[5]}}</td>
+    <td class="right">{{product[1]}}</td>
+    <td class="right">{{product[2]}}</td>
+    <td class="right">{{product[3]}}</td>
+    <td class="right">{{product[4]}}</td>
+    <td class="right">{{product[5]}}</td>
   </tr>
 {% endfor %}
 </tbody>
