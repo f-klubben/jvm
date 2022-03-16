@@ -1,9 +1,9 @@
 # JVM
 
-Monitor of Wittenborg-91XX coffemachine.
+Statistics collector and generator for Wittenborg-91XX coffee-machine.
 
 
-Dependencies: None for actually running the code. [Black](https://github.com/psf/black) for formatting the code.
+`Jinja2` required for running. [Black](https://github.com/psf/black) for formatting the code.
 
 Get started:
 ```bash
@@ -22,7 +22,7 @@ black --target-version py36 --line-length 120 --skip-string-normalization *.py
 ```
 
 ## Systemd service
-See [jvm-logger.service](jvm-logger.service) for an example service.
+See [jvm-logger.service](jvm-logger.service) for in-use service.
 
 ### Technical details
 
