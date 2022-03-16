@@ -3,3 +3,4 @@ test_mails
 *.sqlite3
 venv
 generator/html
+logged_mails
