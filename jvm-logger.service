@@ -11,4 +11,4 @@ ExecStart=/home/coffee/jvm/venv/bin/python3 /home/coffee/jvm/server.py
 WorkingDirectory=/home/coffee/jvm
 
 [Install]
-WantedBy=multi-target.target
+WantedBy=multi-user.target
