@@ -4,3 +4,4 @@ test_mails
 venv
 generator/html
 logged_mails
+notif_data.pickle
