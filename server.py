@@ -1,5 +1,7 @@
 from __future__ import print_function
 from datetime import datetime
+
+import notifier
 from mail_handler import handle_mail, update_statistics
 import asyncore
 from smtpd import SMTPServer
@@ -48,6 +50,7 @@ class KaffeLogger(SMTPServer):
         if (datetime.now() - self.last_update) >= timedelta(minutes=15):
             update_statistics()
             generate.generate_coffee_report(get_sqlite_database())
+            notifier.notify_on_low_ingredient_levels()
             self.last_update = datetime.now()
 
 
