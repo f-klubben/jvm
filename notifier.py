@@ -68,7 +68,8 @@ def send_slack_msg(msg: str, thread_ts: str = None) -> str | None:
         # if message succeeded, return ts of the message which is required for replying in future
         if result["ok"]:
             # react with warning to highlight active low levels
-            CLIENT.reactions_add(channel=CHANNEL_ID, timestamp=result["ts"], name="warning")
+            if not thread_ts:
+                CLIENT.reactions_add(channel=CHANNEL_ID, timestamp=result["ts"], name="warning")
             return result["ts"]
         else:
             return None
