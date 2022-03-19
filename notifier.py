@@ -40,6 +40,10 @@ def get_notif_last_data():
         }
         write_notif_data(data)
         return data
+    except pickle.UnpicklingError or EOFError:
+        print("Pickle file is corrupted or outdated, removing it")
+        Path(NOTIF_DATA_PATH).unlink()
+        return get_notif_last_data()
 
 
 def write_notif_data(data: dict):
@@ -101,9 +105,9 @@ def notify_on_low_ingredient_levels():
                 else:
                     print(f"Could not send notif message for {s}, will not update last notif data")
 
-        # above threshold, check if notif sent with 12 hours
+        # above threshold, check if notif sent
         else:
-            if notif_data[s].last_notif and notif_data[s].last_notif > datetime.now() - timedelta(hours=12):
+            if notif_data[s].last_notif:
                 # send resolve message
                 res = send_slack_msg(
                     f"RESOLVED! {s} is above threshold again. "
