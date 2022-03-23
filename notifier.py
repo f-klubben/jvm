@@ -9,6 +9,7 @@ from slack_sdk.errors import SlackApiError
 from config import get_notif_settings
 
 from generator.generate import INGREDIENT_ESTIMATE
+from sqlite import create_db_conn
 
 SETTINGS = get_notif_settings()
 DEBUG = False if SETTINGS["debug"] == "false" else True
@@ -61,7 +62,7 @@ def send_slack_msg(msg: str, thread_ts: str = None) -> str | None:
     try:
         # react with fixd and remove warning if resolved
         if thread_ts:
-            CLIENT.reactions_remove(channel=CHANNEL_ID, timestamp=thread_ts,  name="warning")
+            CLIENT.reactions_remove(channel=CHANNEL_ID, timestamp=thread_ts, name="warning")
             CLIENT.reactions_add(channel=CHANNEL_ID, timestamp=thread_ts, name="fixd")
 
         result = CLIENT.chat_postMessage(channel=CHANNEL_ID, thread_ts=thread_ts, text=msg)
@@ -79,9 +80,10 @@ def send_slack_msg(msg: str, thread_ts: str = None) -> str | None:
 
 
 def ingredient_levels():
-    cur = sqlite3.connect(str(Path(__file__ + "/../db.sqlite3").resolve())).cursor()
-    cur.execute(INGREDIENT_ESTIMATE)
-    return cur.fetchall()
+    with create_db_conn() as conn:
+        cur = conn.cursor()
+        cur.execute(INGREDIENT_ESTIMATE)
+        return cur.fetchall()
 
 
 def notify_on_low_ingredient_levels():
