@@ -45,7 +45,6 @@ class KaffeLogger(SMTPServer):
         if self.capture == "ALL" or ((not handled) and self.capture == "UNPARSED"):
             save_email(text, self.no)
             self.no += 1
-        if (datetime.now() - self.last_update) >= timedelta(minutes=15):
             update_statistics()
             generate.generate_coffee_report(get_sqlite_database())
             self.last_update = datetime.now()
