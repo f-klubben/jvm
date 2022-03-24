@@ -1,5 +1,7 @@
 from __future__ import print_function
 from datetime import datetime
+
+import notifier
 from mail_handler import handle_mail, update_statistics
 import asyncore
 from smtpd import SMTPServer
@@ -46,6 +48,7 @@ class KaffeLogger(SMTPServer):
             self.no += 1
         update_statistics()
         generate.generate_coffee_report(get_sqlite_database())
+        notifier.notify_on_low_ingredient_levels()
 
 
 def run():
