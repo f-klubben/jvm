@@ -20,6 +20,17 @@ def get_server_settings():
     return {"ip": ip, "port": port, "capture": capture}
 
 
+def get_notif_settings():
+    read_config()
+    return {
+        "debug": CONFIG.get("slack", "debug", fallback=True),
+        "slack_token": CONFIG.get("slack", "token", fallback=""),
+        "channel_id": CONFIG.get("slack", "channel_id", fallback=""),
+        "threshold_percentage": CONFIG.get("slack", "threshold_percentage", fallback=0.25),
+        "notif_data_path": CONFIG.get("slack", "notif_data_path", fallback=""),
+    }
+
+
 def get_db_file():
     read_config()
     return CONFIG.get("database", "location", fallback="db.sqlite3")
