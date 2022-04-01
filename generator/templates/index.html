@@ -111,6 +111,31 @@ body {
 </tbody>
 </table>
 
+{% if historic_statistics is defined %}
+<h2>Statistik ift. stregsystemet</h2>
+<table>
+<thead>
+  <tr>
+    {% for col in historic_statistics[0] %}
+      {% if col is string %}
+      <th class="right">{{col}}</td>
+      {% else %}
+        <th class="right"><abbr title="{{col[1]}} - {{col[2]}}">{{col[0]}}</abbr></td>
+      {% endif %}
+    {% endfor %}
+  </tr>
+</thead>
+<tbody>
+  {% for row in historic_statistics[1:]%}
+  <tr>
+    {% for col in row %}
+      <td class="right">{{col}}</td>
+    {% endfor %}
+  </tr>
+  {% endfor%}
+</tbody>
+</table>
+{% endif %}
 
 </body>
 </html>
