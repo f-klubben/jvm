@@ -41,7 +41,7 @@ def get_notif_last_data():
         }
         write_notif_data(data)
         return data
-    except pickle.UnpicklingError or EOFError:
+    except (pickle.UnpicklingError, EOFError):
         print("Pickle file is corrupted or outdated, removing it")
         Path(NOTIF_DATA_PATH).unlink()
         return get_notif_last_data()
@@ -125,3 +125,6 @@ def notify_on_low_ingredient_levels():
 
     # write updated notif data
     write_notif_data(notif_data)
+
+if __name__ == '__main__':
+    notify_on_low_ingredient_levels()
