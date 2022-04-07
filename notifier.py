@@ -55,7 +55,7 @@ def write_notif_data(data: dict):
         print("Could not dump last notif data:", e)
 
 
-def send_slack_msg(msg: str, thread_ts: str = None) -> str | None:
+def send_slack_msg(msg: str, thread_ts: str = None):
     if DEBUG:
         print(msg, thread_ts)
         return "42.69"
@@ -125,6 +125,3 @@ def notify_on_low_ingredient_levels():
 
     # write updated notif data
     write_notif_data(notif_data)
-
-
-notify_on_low_ingredient_levels()
