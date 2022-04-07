@@ -50,11 +50,37 @@ FROM jvm_dispensed_event
 ORDER BY id DESC LIMIT 1
 """
 
+
 CURR_DIR = Path(__file__).parent.resolve()
+
+
+def reformat_statistics_output(res):
+    result = [["" for i in range(7 + 1)] for j in range(4)]
+    result[0][0] = "Produkt"
+    rows = {"Header": 0}
+    columns = {"Produkt": 0}
+    # res = []
+    for column_name in res.keys():
+        (timename, productname) = column_name.split("|")
+        (count, start, end) = res[column_name].split("|")
+
+        if timename not in columns:
+            columns[timename] = len(columns.keys())
+        if productname not in rows:
+            rows[productname] = len(rows.keys())
+
+        row_index = rows[productname]
+        column_index = columns[timename]
+
+        result[row_index][column_index] = int(count)
+        result[row_index][0] = productname
+        result[0][column_index] = (timename, start, end)
+    return result
 
 
 def generate_coffee_report(sqlite_path: str):
     con = sqlite3.connect(str(sqlite_path))
+    con.row_factory = sqlite3.Row
     cur = con.cursor()
     cur.execute(PRODUCT_STMT)
     products = cur.fetchall()
@@ -66,6 +92,13 @@ def generate_coffee_report(sqlite_path: str):
     ingredients = cur.fetchall()
     cur.execute(MOST_RECENT_DISPENSE)
     recent_dispense = cur.fetchone()
+    statistics_file = CURR_DIR / "historic_statistics.sql"
+    with open(statistics_file, mode="r", encoding="utf-8") as sql_file:
+        statement = sql_file.read()
+        cur.execute(statement)
+        row = cur.fetchone()
+
+        historic_statistics = reformat_statistics_output(row)
     templates_path = CURR_DIR / "templates"
     env = Environment(loader=FileSystemLoader(templates_path))
     template = env.get_template("index.html")
@@ -81,6 +114,7 @@ def generate_coffee_report(sqlite_path: str):
                 general=general,
                 ingredients=ingredients,
                 recent_dispense=recent_dispense,
+                historic_statistics=historic_statistics,
             ).encode("utf-8")
         )
 
