@@ -81,3 +81,16 @@ class DispenserInfo(object):
         self.milk_dispensed = None
         self.choco_dispensed = None
         self.sugar_dispensed = None
+
+
+class EVADTS(object):
+    """docstring for EVADTS"""
+
+    def __init__(self):
+        super(EVADTS, self).__init__()
+        self.dispenser_date = None
+        self.server_date = None
+        self.coffee_beans = None
+        self.milk_product = None
+        self.sugar = None
+        self.chocolate = None

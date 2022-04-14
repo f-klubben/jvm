@@ -126,5 +126,6 @@ def notify_on_low_ingredient_levels():
     # write updated notif data
     write_notif_data(notif_data)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     notify_on_low_ingredient_levels()

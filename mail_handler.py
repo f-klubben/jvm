@@ -1,7 +1,7 @@
 import re
 import base64
 from datetime import datetime
-from models import DispensedEvent, FillEvent, DispenserInfo, IngredientLevel
+from models import DispensedEvent, FillEvent, DispenserInfo, IngredientLevel, EVADTS
 from sqlite import (
     create_db_conn,
     ensure_product_names,
@@ -12,6 +12,7 @@ from sqlite import (
     update_ingredient_level,
     update_machine_numbers,
     update_ingredient_estimates,
+    insert_evadts_info,
 )
 from util import parse_email_date
 from evadts import (
@@ -20,6 +21,7 @@ from evadts import (
     parse_machine_init,
     parse_ingredient_dispensed,
     parse_free_vends,
+    parse_id5_tag,
 )
 from generator import generate
 
@@ -39,13 +41,16 @@ def handle_dispensed(mail):
     ensure_product_names(conn, product_names)
     products = get_products(conn)
     product_dict = {p.name: p for p in products}
+    rows = []
     for m in matches:
         dispensed_date = parse_email_date(m[0])
         dispensed_product = product_dict[m[1]]
         dispensed_status = m[2]
         insert_date = datetime.now()
         e = DispensedEvent(dispensed_date, dispensed_status, insert_date)
-        insert_dispensed_drink_event(conn, e, dispensed_product)
+        rows.append((e, dispensed_product))
+
+    insert_dispensed_drink_event(conn, rows)
 
 
 def handle_status(mail):
@@ -57,6 +62,7 @@ def handle_status(mail):
     lines = message.splitlines()
     d = DispenserInfo()
     products = []
+    evadts_status = EVADTS()
     for i in range(len(lines)):
         if lines[i].startswith("PA1"):
             products.append(parse_product_info(lines[i : i + 6]))
@@ -67,25 +73,33 @@ def handle_status(mail):
             d.last_cleaned = machine_config
         if lines[i].startswith("EA4"):
             d.initialization_date = parse_machine_init(lines[i])
+        if lines[i].startswith("ID5"):
+            evadts_status.dispenser_date = parse_id5_tag(lines[i])
         if lines[i].startswith("SA2"):
             res = parse_ingredient_dispensed(lines[i])
             if res[0] == "Coffee Beans":
                 d.coffee_beans_dispensed = res[1]
+                evadts_status.coffee_beans = res[1]
             elif res[0] == "Milk product":
                 d.milk_dispensed = res[1]
+                evadts_status.milk_product = res[1]
             elif res[0] == "Sugar":
                 d.choco_dispensed = res[1]
+                evadts_status.sugar = res[1]
             elif res[0] == "Chocolate":
                 d.sugar_dispensed = res[1]
+                evadts_status.chocolate = res[1]
             else:
                 print(f'Unknown ingredient "{res[0]}"')
         if lines[i].startswith("VA3"):
             d.total_prod_dispensed = parse_free_vends(lines[i])
     if len(products) == 0:
         return
+    evadts_status.server_date = datetime.now()
     conn = create_db_conn()
     update_products_from_products(conn, products)
     update_machine_numbers(conn, d)
+    insert_evadts_info(conn, evadts_status)
 
 
 def handle_ingredient_change(mail):
