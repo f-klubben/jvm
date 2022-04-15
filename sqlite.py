@@ -16,6 +16,7 @@ INGREDIENT_ESTIMATE_TABLE = "jvm_ingredient_estimate"
 FILL_EVENT_TABLE = "jvm_fill_event"
 INGREDIENT_LEVEL_TABLE = "jvm_ingredient_level"
 EVADTS_TABLE = "jvm_evadts"
+NOTIFICATION_TABLE = "jvm_notification"
 
 
 def create_db_conn():
@@ -85,7 +86,7 @@ def setup_database(conn):
         f"""CREATE TABLE {DISPENSED_EVENT_TABLE} (
               id INTEGER PRIMARY KEY,
               dispensed_date VARCHAR UNIQUE,
-              insert_date VARCHAR DEFAULT (DATETIME('now')),
+              insert_date VARCHAR DEFAULT (strftime('%Y-%m-%d %H:%M:%S.%f', 'now')),
               product_id INTEGER,
               status VARCHAR,
               cost_coffee_beans DEICMAL(10,5),
@@ -125,9 +126,9 @@ def setup_database(conn):
         )"""
     )
     cur.execute(
-        f"""INSERT INTO {INGREDIENT_ESTIMATE_TABLE} 
-              (id, ingredient, estimate_fill_level, max_level, localized_name) 
-        VALUES 
+        f"""INSERT INTO {INGREDIENT_ESTIMATE_TABLE}
+              (id, ingredient, estimate_fill_level, max_level, localized_name)
+        VALUES
               (0, 'Coffee Beans', 0, 2400, 'Kaffebønner'),
               (1, 'Chocolate', 0, 2200, 'Chokolade'),
               (2, 'Milk product', 0, 1800, 'Mælkeprodukt'),
@@ -140,7 +141,7 @@ def setup_database(conn):
         f"""CREATE TABLE {FILL_EVENT_TABLE} (
               id INTEGER PRIMARY KEY,
               fill_date VARCHAR UNIQUE,
-              insert_date VARCHAR DEFAULT (DATETIME('now')),
+              insert_date VARCHAR DEFAULT (strftime('%Y-%m-%d %H:%M:%S.%f', 'now')),
               ingredient VARCHAR,
               value INTEGER
         )"""
@@ -151,15 +152,15 @@ def setup_database(conn):
         f"""CREATE TABLE {INGREDIENT_LEVEL_TABLE} (
             id INTEGER PRIMARY KEY,
             level_date VARCHAR UNIQUE,
-            insert_date VARCHAR DEFAULT (DATETIME('now')),
+            insert_date VARCHAR DEFAULT (strftime('%Y-%m-%d %H:%M:%S.%f', 'now')),
             ingredient VARCHAR,
             value INTEGER
         )"""
     )
     cur.execute(
-        f"""INSERT INTO {INGREDIENT_LEVEL_TABLE} 
-            (level_date, insert_date, ingredient, value) 
-        VALUES 
+        f"""INSERT INTO {INGREDIENT_LEVEL_TABLE}
+            (level_date, insert_date, ingredient, value)
+        VALUES
             ('1970-01-01 00:00:00.000000', '1970-01-01 00:00:00.000000', 'Coffee Beans', 0),
             ('1970-01-01 00:00:00.000001', '1970-01-01 00:00:00.000000', 'Chocolate', 0),
             ('1970-01-01 00:00:00.000002', '1970-01-01 00:00:00.000000', 'Milk product', 0),
@@ -179,6 +180,25 @@ def setup_database(conn):
         )"""
     )
 
+    cur.execute(
+        f"""CREATE TABLE {NOTIFICATION_TABLE} (
+            id INTEGER PRIMARY KEY,
+            ingredient VARCHAR UNIQUE,
+            last_notif VARCHAR,
+            last_notif_ts VARCHAR
+        )"""
+    )
+
+    cur.execute(
+        f"""INSERT INTO {NOTIFICATION_TABLE} (id, ingredient, last_notif, last_notif_ts)
+            VALUES
+                (0, 'Coffee Beans', '1970-01-01 00:00:00.000000', '42.69'),
+                (1, 'Chocolate', '1970-01-01 00:00:00.000000', '42.69'),
+                (2, 'Milk product', '1970-01-01 00:00:00.000000', '42.69'),
+                (3, 'Sugar', '1970-01-01 00:00:00.000000', '42.69')
+        """
+    )
+
     cur.close()
     conn.commit()
 
@@ -188,7 +208,6 @@ def insert_dispensed_drink_event(conn, rows: list[tuple[DispensedEvent, Product]
     formatted_rows = [
         (
             r[0].dispensed_date,
-            r[0].insert_date,
             r[1].id,
             r[0].status,
             r[1].cost_coffee_beans,
@@ -200,10 +219,10 @@ def insert_dispensed_drink_event(conn, rows: list[tuple[DispensedEvent, Product]
     ]
     cur = conn.cursor()
     query = f"""INSERT OR IGNORE INTO {DISPENSED_EVENT_TABLE}
-      (dispensed_date, insert_date, product_id, status, cost_coffee_beans, cost_milk, cost_choco, cost_sugar)
+      (dispensed_date, product_id, status, cost_coffee_beans, cost_milk, cost_choco, cost_sugar)
     VALUES
-      (?, ?, ?, ?, ?, ?, ?, ?)"""
-    cur.executemany(
+      (?, ?, ?, ?, ?, ?, ?)"""
+    res = cur.executemany(
         query,
         formatted_rows,
     )
@@ -298,15 +317,15 @@ def update_products_from_products(conn, products):
 
 def insert_fill_event(conn, e: FillEvent):
     cur = conn.cursor()
-    query = f"INSERT OR IGNORE INTO {FILL_EVENT_TABLE} (fill_date, insert_date, ingredient, value) VALUES (?, ?, ?, ?)"
-    cur.execute(query, (e.fill_date, e.insert_date, e.ingredient, e.value))
+    query = f"INSERT OR IGNORE INTO {FILL_EVENT_TABLE} (fill_date, ingredient, value) VALUES (?, ?, ?)"
+    cur.execute(query, (e.fill_date, e.ingredient, e.value))
     conn.commit()
 
 
 def update_ingredient_level(conn, ilevel: IngredientLevel):
     cur = conn.cursor()
-    query = f"INSERT OR IGNORE INTO {INGREDIENT_LEVEL_TABLE} (level_date, insert_date, ingredient, value) VALUES (?, ?, ?, ?)"
-    cur.execute(query, (ilevel.level_date, ilevel.insert_date, ilevel.ingredient, ilevel.value))
+    query = f"INSERT OR IGNORE INTO {INGREDIENT_LEVEL_TABLE} (level_date, ingredient, value) VALUES (?, ?, ?)"
+    cur.execute(query, (ilevel.level_date, ilevel.ingredient, ilevel.value))
     conn.commit()
 
 
@@ -430,3 +449,46 @@ def insert_evadts_info(conn, info):
         ),
     )
     conn.commit()
+
+
+def get_notifications(conn):
+    cur = conn.cursor()
+    cur.execute(
+        f"""SELECT id,
+            ingredient,
+            last_notif,
+            last_notif_ts
+        FROM
+            {NOTIFICATION_TABLE}
+    """
+    )
+    return cur.fetchall()
+
+
+def update_notifications(conn, values):
+    cur = conn.cursor()
+    cur.executemany(
+        f"""UPDATE {NOTIFICATION_TABLE}
+        SET
+            last_notif = ?,
+            last_notif_ts = ?
+        WHERE
+            ingredient = ?
+    """,
+        values,
+    )
+
+
+def get_ingredient_estimates(conn):
+    cur = conn.cursor()
+    cur.execute(
+        f"""SELECT id,
+            ingredient,
+            estimate_fill_level,
+            max_level,
+            localized_name
+        FROM
+            {INGREDIENT_ESTIMATE_TABLE}
+        """
+    )
+    return cur.fetchall()
