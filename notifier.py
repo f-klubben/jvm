@@ -30,7 +30,7 @@ class NotifData:
 
 
 def write_notif_data(data: dict):
-    objs = [(v.last_notif, v.last_notif_ts, k) for k, v in data.items()]
+    objs = [{"last_notif": v.last_notif, "last_notif_ts": v.last_notif_ts, "ingredient": k} for k, v in data.items()]
     with create_db_conn() as conn:
         update_notifications(conn, objs)
 
@@ -75,11 +75,6 @@ def notify_on_low_ingredient_levels():
     # get curr ingredients and last notif data
     ingredients, notif_data = fetch_database_values()
 
-    # _, s, c, m
-    # _ = id
-    # s = localized_name
-    # c = estimate_fill_level
-    # m = max_level
     for _, ingredient, estimate_fill_level, max_level, localized_name in ingredients:
         threshold = max_level * THRESHOLD_PERCENTAGE
 

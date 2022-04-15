@@ -387,9 +387,10 @@ def update_ingredient_estimate(conn, fill, machine_date, server_date, ingredient
 
     # Use datetime + 2 seconds because it should ignore the fill event right after the machine_date
     new_dt = add_sqlite_latency(server_date)
+    new_machine_date = add_sqlite_latency(machine_date)
 
-    add_query = f'SELECT SUM(value) as "add" FROM {FILL_EVENT_TABLE} WHERE insert_date >= ? AND ingredient = ?'
-    cur.execute(add_query, (new_dt, ingredient_name))
+    add_query = f'SELECT SUM(value) as "add" FROM {FILL_EVENT_TABLE} WHERE insert_date >= ? AND fill_date >= ? AND ingredient = ?'
+    cur.execute(add_query, (new_dt, new_machine_date, ingredient_name))
     add = cur.fetchone()["add"]
     if add is None:
         add = 0
@@ -470,10 +471,10 @@ def update_notifications(conn, values):
     cur.executemany(
         f"""UPDATE {NOTIFICATION_TABLE}
         SET
-            last_notif = ?,
-            last_notif_ts = ?
+            last_notif = :last_notif,
+            last_notif_ts = :last_notif_ts
         WHERE
-            ingredient = ?
+            ingredient = :ingredient
     """,
         values,
     )
@@ -492,3 +493,9 @@ def get_ingredient_estimates(conn):
         """
     )
     return cur.fetchall()
+
+
+if __name__ == "__main__":
+    with create_db_conn() as conn:
+        update_ingredient_estimates(conn)
+        print("Updated ingredient estimates!")
