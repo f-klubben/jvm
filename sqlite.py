@@ -15,6 +15,8 @@ DISPENSER_INFO_TABLE = "jvm_info"
 INGREDIENT_ESTIMATE_TABLE = "jvm_ingredient_estimate"
 FILL_EVENT_TABLE = "jvm_fill_event"
 INGREDIENT_LEVEL_TABLE = "jvm_ingredient_level"
+EVADTS_TABLE = "jvm_evadts"
+NOTIFICATION_TABLE = "jvm_notification"
 
 
 def create_db_conn():
@@ -84,7 +86,7 @@ def setup_database(conn):
         f"""CREATE TABLE {DISPENSED_EVENT_TABLE} (
               id INTEGER PRIMARY KEY,
               dispensed_date VARCHAR UNIQUE,
-              insert_date VARCHAR,
+              insert_date VARCHAR DEFAULT (strftime('%Y-%m-%d %H:%M:%S.%f', 'now')),
               product_id INTEGER,
               status VARCHAR,
               cost_coffee_beans DEICMAL(10,5),
@@ -124,9 +126,9 @@ def setup_database(conn):
         )"""
     )
     cur.execute(
-        f"""INSERT INTO {INGREDIENT_ESTIMATE_TABLE} 
-              (id, ingredient, estimate_fill_level, max_level, localized_name) 
-        VALUES 
+        f"""INSERT INTO {INGREDIENT_ESTIMATE_TABLE}
+              (id, ingredient, estimate_fill_level, max_level, localized_name)
+        VALUES
               (0, 'Coffee Beans', 0, 2400, 'Kaffebønner'),
               (1, 'Chocolate', 0, 2200, 'Chokolade'),
               (2, 'Milk product', 0, 1800, 'Mælkeprodukt'),
@@ -139,7 +141,7 @@ def setup_database(conn):
         f"""CREATE TABLE {FILL_EVENT_TABLE} (
               id INTEGER PRIMARY KEY,
               fill_date VARCHAR UNIQUE,
-              insert_date VARCHAR,
+              insert_date VARCHAR DEFAULT (strftime('%Y-%m-%d %H:%M:%S.%f', 'now')),
               ingredient VARCHAR,
               value INTEGER
         )"""
@@ -150,15 +152,15 @@ def setup_database(conn):
         f"""CREATE TABLE {INGREDIENT_LEVEL_TABLE} (
             id INTEGER PRIMARY KEY,
             level_date VARCHAR UNIQUE,
-            insert_date VARCHAR,
+            insert_date VARCHAR DEFAULT (strftime('%Y-%m-%d %H:%M:%S.%f', 'now')),
             ingredient VARCHAR,
             value INTEGER
         )"""
     )
     cur.execute(
-        f"""INSERT INTO {INGREDIENT_LEVEL_TABLE} 
-            (level_date, insert_date, ingredient, value) 
-        VALUES 
+        f"""INSERT INTO {INGREDIENT_LEVEL_TABLE}
+            (level_date, insert_date, ingredient, value)
+        VALUES
             ('1970-01-01 00:00:00.000000', '1970-01-01 00:00:00.000000', 'Coffee Beans', 0),
             ('1970-01-01 00:00:00.000001', '1970-01-01 00:00:00.000000', 'Chocolate', 0),
             ('1970-01-01 00:00:00.000002', '1970-01-01 00:00:00.000000', 'Milk product', 0),
@@ -166,29 +168,63 @@ def setup_database(conn):
         """
     )
 
+    cur.execute(
+        f"""CREATE TABLE {EVADTS_TABLE} (
+            id INTEGER PRIMARY KEY,
+            dispenser_date VARCHAR UNIQUE,
+            server_date VARCHAR,
+            coffee_beans INTEGER,
+            milk_product INTEGER,
+            sugar INTEGER,
+            chocolate INTEGER
+        )"""
+    )
+
+    cur.execute(
+        f"""CREATE TABLE {NOTIFICATION_TABLE} (
+            id INTEGER PRIMARY KEY,
+            ingredient VARCHAR UNIQUE,
+            last_notif VARCHAR,
+            last_notif_ts VARCHAR
+        )"""
+    )
+
+    cur.execute(
+        f"""INSERT INTO {NOTIFICATION_TABLE} (id, ingredient, last_notif, last_notif_ts)
+            VALUES
+                (0, 'Coffee Beans', '1970-01-01 00:00:00.000000', '42.69'),
+                (1, 'Chocolate', '1970-01-01 00:00:00.000000', '42.69'),
+                (2, 'Milk product', '1970-01-01 00:00:00.000000', '42.69'),
+                (3, 'Sugar', '1970-01-01 00:00:00.000000', '42.69')
+        """
+    )
+
     cur.close()
     conn.commit()
 
 
-def insert_dispensed_drink_event(conn, d: DispensedEvent, p: Product):
+def insert_dispensed_drink_event(conn, rows: list[tuple[DispensedEvent, Product]]):
     # insert the dispensed event into the database
+    formatted_rows = [
+        (
+            r[0].dispensed_date,
+            r[1].id,
+            r[0].status,
+            r[1].cost_coffee_beans,
+            r[1].cost_milk,
+            r[1].cost_choco,
+            r[1].cost_sugar,
+        )
+        for r in rows
+    ]
     cur = conn.cursor()
     query = f"""INSERT OR IGNORE INTO {DISPENSED_EVENT_TABLE}
-      (dispensed_date, insert_date, product_id, status, cost_coffee_beans, cost_milk, cost_choco, cost_sugar)
+      (dispensed_date, product_id, status, cost_coffee_beans, cost_milk, cost_choco, cost_sugar)
     VALUES
-      (?, ?, ?, ?, ?, ?, ?, ?)"""
-    cur.execute(
+      (?, ?, ?, ?, ?, ?, ?)"""
+    res = cur.executemany(
         query,
-        (
-            d.dispensed_date,
-            d.insert_date,
-            p.id,
-            d.status,
-            p.cost_coffee_beans,
-            p.cost_milk,
-            p.cost_choco,
-            p.cost_sugar,
-        ),
+        formatted_rows,
     )
     conn.commit()
 
@@ -281,15 +317,15 @@ def update_products_from_products(conn, products):
 
 def insert_fill_event(conn, e: FillEvent):
     cur = conn.cursor()
-    query = f"INSERT OR IGNORE INTO {FILL_EVENT_TABLE} (fill_date, insert_date, ingredient, value) VALUES (?, ?, ?, ?)"
-    cur.execute(query, (e.fill_date, e.insert_date, e.ingredient, e.value))
+    query = f"INSERT OR IGNORE INTO {FILL_EVENT_TABLE} (fill_date, ingredient, value) VALUES (?, ?, ?)"
+    cur.execute(query, (e.fill_date, e.ingredient, e.value))
     conn.commit()
 
 
 def update_ingredient_level(conn, ilevel: IngredientLevel):
     cur = conn.cursor()
-    query = f"INSERT OR IGNORE INTO {INGREDIENT_LEVEL_TABLE} (level_date, insert_date, ingredient, value) VALUES (?, ?, ?, ?)"
-    cur.execute(query, (ilevel.level_date, ilevel.insert_date, ilevel.ingredient, ilevel.value))
+    query = f"INSERT OR IGNORE INTO {INGREDIENT_LEVEL_TABLE} (level_date, ingredient, value) VALUES (?, ?, ?)"
+    cur.execute(query, (ilevel.level_date, ilevel.ingredient, ilevel.value))
     conn.commit()
 
 
@@ -327,7 +363,7 @@ def add_sqlite_latency(text):
     return new_dt.strftime("%Y-%m-%d %H:%M:%S.%f")
 
 
-def update_ingredient_estimate(conn, fill, filldate, ingredient_name):
+def update_ingredient_estimate(conn, fill, machine_date, server_date, ingredient_name):
     cost_columns = {
         "Coffee Beans": "cost_coffee_beans",
         "Milk product": "cost_milk",
@@ -343,16 +379,18 @@ def update_ingredient_estimate(conn, fill, filldate, ingredient_name):
     cur = conn.cursor()
 
     remove_query = f"SELECT ROUND(SUM({cost_column}), 2) as cost FROM {DISPENSED_EVENT_TABLE} WHERE insert_date >= ?"
-    cur.execute(remove_query, (filldate,))
-    # print(filldate)
+    cur.execute(remove_query, (machine_date,))
+
     cost = cur.fetchone()["cost"]
     if cost is None:
         cost = 0
 
-    # Use datetime + 2 seconds because it should ignore the fill event right after the filldate
-    new_dt = add_sqlite_latency(filldate)
-    add_query = f'SELECT SUM(value) as "add" FROM {FILL_EVENT_TABLE} WHERE insert_date >= ? AND ingredient = ?'
-    cur.execute(add_query, (new_dt, ingredient_name))
+    # Use datetime + 2 seconds because it should ignore the fill event right after the machine_date
+    new_dt = add_sqlite_latency(server_date)
+    new_machine_date = add_sqlite_latency(machine_date)
+
+    add_query = f'SELECT SUM(value) as "add" FROM {FILL_EVENT_TABLE} WHERE insert_date >= ? AND fill_date >= ? AND ingredient = ?'
+    cur.execute(add_query, (new_dt, new_machine_date, ingredient_name))
     add = cur.fetchone()["add"]
     if add is None:
         add = 0
@@ -369,9 +407,11 @@ def update_ingredient_estimate(conn, fill, filldate, ingredient_name):
 
 def update_ingredient_estimates(conn):
     cur = conn.cursor()
-    query = f"""SELECT ingredient,
+    query = f"""
+    SELECT ingredient,
           insert_date,
-           value
+          level_date,
+          value
     FROM {INGREDIENT_LEVEL_TABLE}
     WHERE id IN
         (SELECT max(id)
@@ -384,5 +424,78 @@ def update_ingredient_estimates(conn):
     for fill_level in fill_levels:
         ingredient = fill_level[0]
         insert_date = fill_level[1]
-        value = fill_level[2]
-        update_ingredient_estimate(conn, fill=value, filldate=insert_date, ingredient_name=ingredient)
+        level_date = fill_level[2]
+        value = fill_level[3]
+        update_ingredient_estimate(
+            conn,
+            fill=value,
+            machine_date=level_date,
+            server_date=insert_date,
+            ingredient_name=ingredient,
+        )
+
+
+def insert_evadts_info(conn, info):
+    cur = conn.cursor()
+    query = f"INSERT OR IGNORE INTO {EVADTS_TABLE} (dispenser_date, server_date, coffee_beans, milk_product, sugar, chocolate) VALUES (?, ?, ?, ?, ?, ?)"
+    cur.execute(
+        query,
+        (
+            info.dispenser_date,
+            info.server_date,
+            info.coffee_beans,
+            info.milk_product,
+            info.sugar,
+            info.chocolate,
+        ),
+    )
+    conn.commit()
+
+
+def get_notifications(conn):
+    cur = conn.cursor()
+    cur.execute(
+        f"""SELECT id,
+            ingredient,
+            last_notif,
+            last_notif_ts
+        FROM
+            {NOTIFICATION_TABLE}
+    """
+    )
+    return cur.fetchall()
+
+
+def update_notifications(conn, values):
+    cur = conn.cursor()
+    cur.executemany(
+        f"""UPDATE {NOTIFICATION_TABLE}
+        SET
+            last_notif = :last_notif,
+            last_notif_ts = :last_notif_ts
+        WHERE
+            ingredient = :ingredient
+    """,
+        values,
+    )
+
+
+def get_ingredient_estimates(conn):
+    cur = conn.cursor()
+    cur.execute(
+        f"""SELECT id,
+            ingredient,
+            estimate_fill_level,
+            max_level,
+            localized_name
+        FROM
+            {INGREDIENT_ESTIMATE_TABLE}
+        """
+    )
+    return cur.fetchall()
+
+
+if __name__ == "__main__":
+    with create_db_conn() as conn:
+        update_ingredient_estimates(conn)
+        print("Updated ingredient estimates!")
