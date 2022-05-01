@@ -17,10 +17,10 @@ INSERT INTO jvm_notification (
   id, ingredient, last_notif, last_notif_ts
 )
 VALUES
-  (0, 'Coffee Beans', '1970-01-01 00:00:00.000000', '42.69'),
-  (1, 'Chocolate', '1970-01-01 00:00:00.000000', '42.69'),
-  (2, 'Milk product', '1970-01-01 00:00:00.000000', '42.69'),
-  (3, 'Sugar', '1970-01-01 00:00:00.000000', '42.69');
+  (0, 'Coffee Beans', NULL, '42.69'),
+  (1, 'Chocolate', NULL, '42.69'),
+  (2, 'Milk product', NULL, '42.69'),
+  (3, 'Sugar', NULL, '42.69');
 
 
 CREATE TABLE jvm_dispensed_event_TEMP (
