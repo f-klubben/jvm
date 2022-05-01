@@ -203,7 +203,7 @@ def setup_database(conn):
     conn.commit()
 
 
-def insert_dispensed_drink_event(conn, rows: list[tuple[DispensedEvent, Product]]):
+def insert_dispensed_drink_event(conn, rows):
     # insert the dispensed event into the database
     formatted_rows = [
         (
@@ -437,12 +437,11 @@ def update_ingredient_estimates(conn):
 
 def insert_evadts_info(conn, info):
     cur = conn.cursor()
-    query = f"INSERT OR IGNORE INTO {EVADTS_TABLE} (dispenser_date, server_date, coffee_beans, milk_product, sugar, chocolate) VALUES (?, ?, ?, ?, ?, ?)"
+    query = f"INSERT OR IGNORE INTO {EVADTS_TABLE} (dispenser_date, coffee_beans, milk_product, sugar, chocolate) VALUES (?, ?, ?, ?, ?, ?)"
     cur.execute(
         query,
         (
             info.dispenser_date,
-            info.server_date,
             info.coffee_beans,
             info.milk_product,
             info.sugar,

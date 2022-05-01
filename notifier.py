@@ -8,7 +8,12 @@ from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 from config import get_notif_settings
 
-from sqlite import create_db_conn, get_notifications, get_ingredient_estimates, update_notifications
+from sqlite import (
+    create_db_conn,
+    get_notifications,
+    get_ingredient_estimates,
+    update_notifications,
+)
 
 SETTINGS = get_notif_settings()
 DEBUG = False if SETTINGS["debug"] == "false" else True
@@ -66,7 +71,7 @@ def fetch_database_values():
         notif_datas = {}
         for _, ingredient, last_notif, last_notif_ts in notifications:
             if last_notif:
-                last_notif = datetime.fromisoformat(last_notif)
+                last_notif = datetime.strptime(last_notif, "%Y-%m-%d %H:%M:%S")
             notif_datas[ingredient] = NotifData(last_notif, last_notif_ts)
         return (ingredient_estimates, notif_datas)
 
