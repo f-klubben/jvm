@@ -1,7 +1,7 @@
 CREATE TABLE jvm_evadts (
   id INTEGER PRIMARY KEY,
   dispenser_date VARCHAR UNIQUE,
-  server_date VARCHAR DEFAULT (strftime('%Y-%m-%d %H:%M:%S.%f', 'now')),
+  server_date VARCHAR DEFAULT (strftime('%Y-%m-%d %H:%M:%f', 'now')),
   coffee_beans INTEGER,
   milk_product INTEGER,
   sugar INTEGER,
