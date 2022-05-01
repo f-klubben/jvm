@@ -26,7 +26,7 @@ VALUES
 CREATE TABLE jvm_dispensed_event_TEMP (
   id INTEGER PRIMARY KEY,
   dispensed_date VARCHAR UNIQUE,
-  insert_date VARCHAR DEFAULT (strftime('%Y-%m-%d %H:%M:%S.%f', 'now')),
+  insert_date VARCHAR DEFAULT (strftime('%Y-%m-%d %H:%M:%f', 'now')),
   product_id INTEGER,
   status VARCHAR,
   cost_coffee_beans DEICMAL(10,5),
@@ -55,7 +55,7 @@ ALTER TABLE jvm_dispensed_event_TEMP RENAME TO jvm_dispensed_event;
 CREATE TABLE jvm_fill_event_TEMP (
   id INTEGER PRIMARY KEY,
   fill_date VARCHAR UNIQUE,
-  insert_date VARCHAR DEFAULT (strftime('%Y-%m-%d %H:%M:%S.%f', 'now')),
+  insert_date VARCHAR DEFAULT (strftime('%Y-%m-%d %H:%M:%f', 'now')),
   ingredient VARCHAR,
   value INTEGER
 );
@@ -76,7 +76,7 @@ ALTER TABLE jvm_fill_event_TEMP RENAME TO jvm_fill_event;
 CREATE TABLE jvm_ingredient_level_TEMP (
   id INTEGER PRIMARY KEY,
   level_date VARCHAR UNIQUE,
-  insert_date VARCHAR DEFAULT (strftime('%Y-%m-%d %H:%M:%S.%f', 'now')),
+  insert_date VARCHAR DEFAULT (strftime('%Y-%m-%d %H:%M:%f', 'now')),
   ingredient VARCHAR,
   value INTEGER
 );

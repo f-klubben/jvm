@@ -86,7 +86,7 @@ def setup_database(conn):
         f"""CREATE TABLE {DISPENSED_EVENT_TABLE} (
               id INTEGER PRIMARY KEY,
               dispensed_date VARCHAR UNIQUE,
-              insert_date VARCHAR DEFAULT (strftime('%Y-%m-%d %H:%M:%S.%f', 'now')),
+              insert_date VARCHAR DEFAULT (strftime('%Y-%m-%d %H:%M:%f', 'now')),
               product_id INTEGER,
               status VARCHAR,
               cost_coffee_beans DEICMAL(10,5),
@@ -141,7 +141,7 @@ def setup_database(conn):
         f"""CREATE TABLE {FILL_EVENT_TABLE} (
               id INTEGER PRIMARY KEY,
               fill_date VARCHAR UNIQUE,
-              insert_date VARCHAR DEFAULT (strftime('%Y-%m-%d %H:%M:%S.%f', 'now')),
+              insert_date VARCHAR DEFAULT (strftime('%Y-%m-%d %H:%M:%f', 'now')),
               ingredient VARCHAR,
               value INTEGER
         )"""
@@ -152,7 +152,7 @@ def setup_database(conn):
         f"""CREATE TABLE {INGREDIENT_LEVEL_TABLE} (
             id INTEGER PRIMARY KEY,
             level_date VARCHAR UNIQUE,
-            insert_date VARCHAR DEFAULT (strftime('%Y-%m-%d %H:%M:%S.%f', 'now')),
+            insert_date VARCHAR DEFAULT (strftime('%Y-%m-%d %H:%M:%f', 'now')),
             ingredient VARCHAR,
             value INTEGER
         )"""
@@ -172,7 +172,7 @@ def setup_database(conn):
         f"""CREATE TABLE {EVADTS_TABLE} (
             id INTEGER PRIMARY KEY,
             dispenser_date VARCHAR UNIQUE,
-            server_date VARCHAR,
+            server_date VARCHAR DEFAULT (strftime('%Y-%m-%d %H:%M:%f', 'now')),
             coffee_beans INTEGER,
             milk_product INTEGER,
             sugar INTEGER,
