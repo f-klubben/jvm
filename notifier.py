@@ -37,7 +37,7 @@ class NotifData:
 def write_notif_data(data: dict):
     objs = [
         {
-            "last_notif": datetime.strptime(v.last_notif, "%Y-%m-%d %H:%M:%S.%f"),
+            "last_notif": datetime.strftime(v.last_notif, "%Y-%m-%d %H:%M:%S.%f"),
             "last_notif_ts": v.last_notif_ts,
             "ingredient": k,
         }
