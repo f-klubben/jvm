@@ -71,7 +71,7 @@ def fetch_database_values():
         notif_datas = {}
         for _, ingredient, last_notif, last_notif_ts in notifications:
             if last_notif:
-                last_notif = datetime.strptime(last_notif, "%Y-%m-%d %H:%M:%S")
+                last_notif = datetime.strptime(last_notif, "%Y-%m-%d %H:%M:%S.%f")
             notif_datas[ingredient] = NotifData(last_notif, last_notif_ts)
         return (ingredient_estimates, notif_datas)
 
