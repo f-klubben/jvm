@@ -35,7 +35,14 @@ class NotifData:
 
 
 def write_notif_data(data: dict):
-    objs = [{"last_notif": v.last_notif, "last_notif_ts": v.last_notif_ts, "ingredient": k} for k, v in data.items()]
+    objs = [
+        {
+            "last_notif": datetime.strptime(v.last_notif, "%Y-%m-%d %H:%M:%S.%f"),
+            "last_notif_ts": v.last_notif_ts,
+            "ingredient": k,
+        }
+        for k, v in data.items()
+    ]
     with create_db_conn() as conn:
         update_notifications(conn, objs)
 
