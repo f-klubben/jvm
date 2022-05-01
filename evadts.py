@@ -16,6 +16,12 @@ def split_evadts_str(line):
     return line.split("*")
 
 
+# Parses a line like this:
+# ID5*991215*000001**OFF
+def parse_id5_tag(line):
+    return parse_evadts_date(line[4:17])
+
+
 def parse_product_info(lines):
     pa1_split = split_evadts_str(lines[0])
     pa4_split = split_evadts_str(lines[3])

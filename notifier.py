@@ -8,8 +8,7 @@ from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 from config import get_notif_settings
 
-from generator.generate import INGREDIENT_ESTIMATE
-from sqlite import create_db_conn
+from sqlite import create_db_conn, get_notifications, get_ingredient_estimates, update_notifications
 
 SETTINGS = get_notif_settings()
 DEBUG = False if SETTINGS["debug"] == "false" else True
@@ -26,33 +25,14 @@ class NotifData:
         self.last_notif: datetime = last_notif
         self.last_notif_ts: str = last_notif_ts
 
-
-def get_notif_last_data():
-    try:
-        with open(NOTIF_DATA_PATH, "rb") as f:
-            return pickle.load(f)
-    except FileNotFoundError:
-        # init notif data if it does not exist
-        data = {
-            "Kaffebønner": NotifData(),
-            "Chokolade": NotifData(),
-            "Mælkeprodukt": NotifData(),
-            "Sukker": NotifData(),
-        }
-        write_notif_data(data)
-        return data
-    except (pickle.UnpicklingError, EOFError):
-        print("Pickle file is corrupted or outdated, removing it")
-        Path(NOTIF_DATA_PATH).unlink()
-        return get_notif_last_data()
+    def __repr__(self):
+        return f"NotifData(last_notif={self.last_notif},last_notif_ts={self.last_notif_ts})"
 
 
 def write_notif_data(data: dict):
-    try:
-        with open(NOTIF_DATA_PATH, "wb") as f:
-            pickle.dump(data, f)
-    except Exception as e:
-        print("Could not dump last notif data:", e)
+    objs = [{"last_notif": v.last_notif, "last_notif_ts": v.last_notif_ts, "ingredient": k} for k, v in data.items()]
+    with create_db_conn() as conn:
+        update_notifications(conn, objs)
 
 
 def send_slack_msg(msg: str, thread_ts: str = None):
@@ -79,52 +59,61 @@ def send_slack_msg(msg: str, thread_ts: str = None):
         print(f"Error sending message to {CHANNEL_ID}: {e}")
 
 
-def ingredient_levels():
+def fetch_database_values():
     with create_db_conn() as conn:
-        cur = conn.cursor()
-        cur.execute(INGREDIENT_ESTIMATE)
-        return cur.fetchall()
+        ingredient_estimates = get_ingredient_estimates(conn)
+        notifications = get_notifications(conn)
+        notif_datas = {}
+        for _, ingredient, last_notif, last_notif_ts in notifications:
+            if last_notif:
+                last_notif = datetime.fromisoformat(last_notif)
+            notif_datas[ingredient] = NotifData(last_notif, last_notif_ts)
+        return (ingredient_estimates, notif_datas)
 
 
 def notify_on_low_ingredient_levels():
     # get curr ingredients and last notif data
-    ingredients = ingredient_levels()
-    notif_data = get_notif_last_data()
+    ingredients, notif_data = fetch_database_values()
 
-    for _, s, c, m in ingredients:
-        threshold = m * THRESHOLD_PERCENTAGE
+    for _, ingredient, estimate_fill_level, max_level, localized_name in ingredients:
+        threshold = max_level * THRESHOLD_PERCENTAGE
 
-        if c <= threshold:
+        current_notif = notif_data[ingredient]
+
+        if estimate_fill_level <= threshold:
             # if not notified
-            if not notif_data[s].last_notif:
+            if not current_notif.last_notif:
                 # send message
                 res = send_slack_msg(
-                    f"@channel ACTION NEEDED! {s} needs to be refilled. Threshold: {threshold}, but {c}/{m} grams left"
+                    f"@channel ACTION NEEDED! {ingredient} needs to be refilled. Threshold: {threshold}, but {estimate_fill_level}/{max_level} grams left"
                 )
                 if res:
                     # update last notif data if msg was sent successfully
-                    notif_data[s].last_notif = datetime.now()
-                    notif_data[s].last_notif_ts = res
+                    current_notif.last_notif = datetime.now()
+                    current_notif.last_notif_ts = res
+                    notif_data[ingredient] = current_notif
                 else:
-                    print(f"Could not send notif message for {s}, will not update last notif data")
+                    print(f"Could not send notif message for {ingredient}, will not update last notif data")
 
         # above threshold, check if notif sent
         else:
-            if notif_data[s].last_notif:
+            if current_notif.last_notif:
                 # send resolve message
                 res = send_slack_msg(
-                    f"RESOLVED! {s} is above threshold again. "
-                    f"Resolved within {datetime.now() - notif_data[s].last_notif}",
-                    notif_data[s].last_notif_ts,
+                    f"RESOLVED! {ingredient} is above threshold again. "
+                    f"Resolved within {datetime.now() - current_notif.last_notif}",
+                    current_notif.last_notif_ts,
                 )
                 if res:
                     # reset notif data if msg was sent successfully
-                    notif_data[s] = NotifData()
+                    current_notif = NotifData()
+                    notif_data[ingredient] = current_notif
                 else:
-                    print(f"Could not send resolve message for {s}, retrying next run")
+                    print(f"Could not send resolve message for {ingredient}, retrying next run")
 
     # write updated notif data
     write_notif_data(notif_data)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     notify_on_low_ingredient_levels()
