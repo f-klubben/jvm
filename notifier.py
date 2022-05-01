@@ -34,10 +34,16 @@ class NotifData:
         return f"NotifData(last_notif={self.last_notif},last_notif_ts={self.last_notif_ts})"
 
 
+def format_datetime(datetime_obj):
+    if datetime_obj is None:
+        return None
+    return datetime.strftime(datetime_obj, "%Y-%m-%d %H:%M:%S.%f")
+
+
 def write_notif_data(data: dict):
     objs = [
         {
-            "last_notif": datetime.strftime(v.last_notif, "%Y-%m-%d %H:%M:%S.%f"),
+            "last_notif": format_datetime(v.last_notif),
             "last_notif_ts": v.last_notif_ts,
             "ingredient": k,
         }
