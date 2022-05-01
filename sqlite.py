@@ -1,10 +1,11 @@
 import sqlite3
 import os
-from models import Product, DispensedEvent, FillEvent, DispenserInfo, IngredientLevel
+from models import DispenserInfo, FillEvent, IngredientLevel, Product
 from datetime import datetime, timedelta
 from decimal import Decimal
 from config import get_db_file
 from pathlib import Path
+import logging
 
 CURR_DIR = Path(__file__).parent.resolve()
 DB_FILE_NAME = CURR_DIR / get_db_file()
@@ -311,7 +312,7 @@ def update_products_from_products(conn, products):
             # Perform update
             update_product_from_product(conn, p)
         else:
-            print(f'Missing a localized_name for the value "{p.localized_name}"')
+            logging.warning(f'Missing a localized_name for the value "{p.localized_name}"')
     conn.commit()
 
 
@@ -372,7 +373,7 @@ def update_ingredient_estimate(conn, fill, machine_date, server_date, ingredient
     }
 
     if ingredient_name not in cost_columns:
-        print(f"Unknown column name in estimate_columns: {ingredient_name}")
+        logging.warning(f"Unknown column name in estimate_columns: {ingredient_name}")
         return
 
     cost_column = cost_columns[ingredient_name]
@@ -396,7 +397,7 @@ def update_ingredient_estimate(conn, fill, machine_date, server_date, ingredient
         add = 0
 
     new_value = Decimal(fill) + Decimal(add) - Decimal(cost)
-    # print(f"Update estimates! {new_value=}, {fill=}, {add=}, {cost=}")
+    logging.debug(f"Update estimates! new_value={new_value}, fill={fill}, add={add}, cost={cost}")
     if new_value < 0:
         new_value = 0
     new_value = str(new_value)
@@ -437,7 +438,7 @@ def update_ingredient_estimates(conn):
 
 def insert_evadts_info(conn, info):
     cur = conn.cursor()
-    query = f"INSERT OR IGNORE INTO {EVADTS_TABLE} (dispenser_date, coffee_beans, milk_product, sugar, chocolate) VALUES (?, ?, ?, ?, ?, ?)"
+    query = f"INSERT OR IGNORE INTO {EVADTS_TABLE} (dispenser_date, coffee_beans, milk_product, sugar, chocolate) VALUES (?, ?, ?, ?, ?)"
     cur.execute(
         query,
         (
@@ -497,4 +498,4 @@ def get_ingredient_estimates(conn):
 if __name__ == "__main__":
     with create_db_conn() as conn:
         update_ingredient_estimates(conn)
-        print("Updated ingredient estimates!")
+        logging.debug("Updated ingredient estimates!")

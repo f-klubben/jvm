@@ -1,12 +1,10 @@
-import pickle
-import sqlite3
 from datetime import datetime
 from datetime import timedelta
-from pathlib import Path
 
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 from config import get_notif_settings
+import logging
 
 from sqlite import (
     create_db_conn,
@@ -55,7 +53,7 @@ def write_notif_data(data: dict):
 
 def send_slack_msg(msg: str, thread_ts: str = None):
     if DEBUG:
-        print(msg, thread_ts)
+        logging.debug(msg, thread_ts)
         return "42.69"
     try:
         # react with fixd and remove warning if resolved
@@ -74,7 +72,7 @@ def send_slack_msg(msg: str, thread_ts: str = None):
             return None
 
     except SlackApiError as e:
-        print(f"Error sending message to {CHANNEL_ID}: {e}")
+        logging.exception(f"Error sending message to {CHANNEL_ID}: {e}")
 
 
 def fetch_database_values():
@@ -111,7 +109,7 @@ def notify_on_low_ingredient_levels():
                     current_notif.last_notif_ts = res
                     notif_data[ingredient] = current_notif
                 else:
-                    print(f"Could not send notif message for {ingredient}, will not update last notif data")
+                    logging.warning(f"Could not send notif message for {ingredient}, will not update last notif data")
 
         # above threshold, check if notif sent
         else:
@@ -127,7 +125,7 @@ def notify_on_low_ingredient_levels():
                     current_notif = NotifData()
                     notif_data[ingredient] = current_notif
                 else:
-                    print(f"Could not send resolve message for {ingredient}, retrying next run")
+                    logging.warning(f"Could not send resolve message for {ingredient}, retrying next run")
 
     # write updated notif data
     write_notif_data(notif_data)

@@ -23,7 +23,6 @@ from evadts import (
     parse_free_vends,
     parse_id5_tag,
 )
-from generator import generate
 
 # Handles the "DispensedDrinkEvent"
 # Each mail contains the 10 last DispensedDrinkEvent
@@ -90,7 +89,7 @@ def handle_status(mail):
                 d.sugar_dispensed = res[1]
                 evadts_status.chocolate = res[1]
             else:
-                print(f'Unknown ingredient "{res[0]}"')
+                logging.warning(f'Unknown ingredient "{res[0]}"')
         if lines[i].startswith("VA3"):
             d.total_prod_dispensed = parse_free_vends(lines[i])
     if len(products) == 0:
@@ -154,7 +153,7 @@ def update_statistics():
     update_ingredient_estimates(conn)
 
 
-def handle_mail(mail) -> bool:
+def handle_mail(mail):
     subject = None
 
     IGNORE_SUBJECTS = (
