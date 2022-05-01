@@ -89,7 +89,6 @@ class EVADTS(object):
     def __init__(self):
         super(EVADTS, self).__init__()
         self.dispenser_date = None
-        self.server_date = None
         self.coffee_beans = None
         self.milk_product = None
         self.sugar = None

@@ -86,7 +86,7 @@ def setup_database(conn):
         f"""CREATE TABLE {DISPENSED_EVENT_TABLE} (
               id INTEGER PRIMARY KEY,
               dispensed_date VARCHAR UNIQUE,
-              insert_date VARCHAR DEFAULT (strftime('%Y-%m-%d %H:%M:%S.%f', 'now')),
+              insert_date VARCHAR DEFAULT (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime')),
               product_id INTEGER,
               status VARCHAR,
               cost_coffee_beans DEICMAL(10,5),
@@ -141,7 +141,7 @@ def setup_database(conn):
         f"""CREATE TABLE {FILL_EVENT_TABLE} (
               id INTEGER PRIMARY KEY,
               fill_date VARCHAR UNIQUE,
-              insert_date VARCHAR DEFAULT (strftime('%Y-%m-%d %H:%M:%S.%f', 'now')),
+              insert_date VARCHAR DEFAULT (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime')),
               ingredient VARCHAR,
               value INTEGER
         )"""
@@ -152,7 +152,7 @@ def setup_database(conn):
         f"""CREATE TABLE {INGREDIENT_LEVEL_TABLE} (
             id INTEGER PRIMARY KEY,
             level_date VARCHAR UNIQUE,
-            insert_date VARCHAR DEFAULT (strftime('%Y-%m-%d %H:%M:%S.%f', 'now')),
+            insert_date VARCHAR DEFAULT (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime')),
             ingredient VARCHAR,
             value INTEGER
         )"""
@@ -172,7 +172,7 @@ def setup_database(conn):
         f"""CREATE TABLE {EVADTS_TABLE} (
             id INTEGER PRIMARY KEY,
             dispenser_date VARCHAR UNIQUE,
-            server_date VARCHAR,
+            server_date VARCHAR DEFAULT (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime')),
             coffee_beans INTEGER,
             milk_product INTEGER,
             sugar INTEGER,
@@ -203,7 +203,7 @@ def setup_database(conn):
     conn.commit()
 
 
-def insert_dispensed_drink_event(conn, rows: list[tuple[DispensedEvent, Product]]):
+def insert_dispensed_drink_event(conn, rows):
     # insert the dispensed event into the database
     formatted_rows = [
         (
@@ -437,12 +437,11 @@ def update_ingredient_estimates(conn):
 
 def insert_evadts_info(conn, info):
     cur = conn.cursor()
-    query = f"INSERT OR IGNORE INTO {EVADTS_TABLE} (dispenser_date, server_date, coffee_beans, milk_product, sugar, chocolate) VALUES (?, ?, ?, ?, ?, ?)"
+    query = f"INSERT OR IGNORE INTO {EVADTS_TABLE} (dispenser_date, coffee_beans, milk_product, sugar, chocolate) VALUES (?, ?, ?, ?, ?, ?)"
     cur.execute(
         query,
         (
             info.dispenser_date,
-            info.server_date,
             info.coffee_beans,
             info.milk_product,
             info.sugar,

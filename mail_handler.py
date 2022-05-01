@@ -95,7 +95,6 @@ def handle_status(mail):
             d.total_prod_dispensed = parse_free_vends(lines[i])
     if len(products) == 0:
         return
-    evadts_status.server_date = datetime.now()
     conn = create_db_conn()
     update_products_from_products(conn, products)
     update_machine_numbers(conn, d)
