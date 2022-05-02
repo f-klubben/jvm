@@ -28,7 +28,6 @@ def get_notif_settings():
         "slack_token": CONFIG.get("slack", "token", fallback=""),
         "channel_id": CONFIG.get("slack", "channel_id", fallback=""),
         "threshold_percentage": CONFIG.get("slack", "threshold_percentage", fallback=0.25),
-        "notif_data_path": CONFIG.get("slack", "notif_data_path", fallback=""),
     }
 
 
