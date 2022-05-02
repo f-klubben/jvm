@@ -1,4 +1,5 @@
 import configparser
+import logging
 
 CONFIG = None
 
@@ -16,7 +17,7 @@ def get_server_settings():
     port = CONFIG.getint("default", "port", fallback=2525)
     capture = CONFIG.get("default", "capture", fallback="ALL")
     if capture not in ["ALL", "UNPARSED", "NONE"]:
-        print(f'Unknown value in the config file for capture: "{capture}"')
+        logging.error(f'Unknown value in the config file for capture: "{capture}"')
     return {"ip": ip, "port": port, "capture": capture}
 
 
@@ -27,8 +28,22 @@ def get_notif_settings():
         "slack_token": CONFIG.get("slack", "token", fallback=""),
         "channel_id": CONFIG.get("slack", "channel_id", fallback=""),
         "threshold_percentage": CONFIG.get("slack", "threshold_percentage", fallback=0.25),
-        "notif_data_path": CONFIG.get("slack", "notif_data_path", fallback=""),
     }
+
+
+def setup_logging():
+    read_config()
+    loglevel = CONFIG.get("log", "level", fallback="DEBUG")
+    logfile = CONFIG.get("log", "filename", fallback=None)
+
+    numeric_level = getattr(logging, loglevel.upper(), None)
+    if not isinstance(numeric_level, int):
+        raise ValueError(f"Invalid log level: {loglevel}")
+    logging.basicConfig(
+        filename=logfile,
+        level=numeric_level,
+        format="[%(asctime)s] [%(funcName)s:%(lineno)d] %(message)s",
+    )
 
 
 def get_db_file():
@@ -37,5 +52,7 @@ def get_db_file():
 
 
 if __name__ == "__main__":
-    print(f"get_server_settings()={get_server_settings()}")
-    print(f"get_db_file()={get_db_file()}")
+    setup_logging()
+    logging.debug(f"get_server_settings()={get_server_settings()}")
+    logging.debug(f"get_notif_settings()={get_notif_settings()}")
+    logging.debug(f"get_db_file()='{get_db_file()}'")

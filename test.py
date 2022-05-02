@@ -4,6 +4,8 @@ from os.path import join, isfile
 from pathlib import Path
 from generator import generate
 from sqlite import get_sqlite_database
+from config import setup_logging
+import logging
 import sqlite3
 
 
@@ -19,11 +21,10 @@ def ingest_emails():
         with open(f, mode="r", encoding="utf-8") as e:
             handled, subject = handle_mail(e.read())
             if handled:
-                # print(f'SUCCESS: correctly parse file: "{f}"')
-                pass
+                logging.debug(f'SUCCESS: correctly parse file: "{f}"')
             else:
-                print(f'FAILURE: failed to parse file: "{f}"')
-                print(f'Subject: "{subject}"')
+                logging.error(f'FAILURE: failed to parse file: "{f}"')
+                logging.error(f'Subject: "{subject}"')
 
 
 def correct_database_timestamps():
@@ -40,6 +41,7 @@ def final_step():
 
 
 def main():
+    setup_logging()
     ingest_emails()
     correct_database_timestamps()
     final_step()
