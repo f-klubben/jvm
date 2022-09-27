@@ -22,7 +22,7 @@ black --target-version py36 --line-length 120 --skip-string-normalization *.py
 ```
 
 ## Systemd service
-See [jvm-logger.service](jvm-logger.service) for in-use service. Service runs `server.py` to periodically handle mails and generate statistics. 
+See [coffee.service](coffee.service) for in-use service. Service runs `server.py` to periodically handle mails and generate statistics. 
 Generated html is symlinked to `/var/www/coffee`, which Apache exposes with SSL-cert stapling.
 
 ### Technical details
