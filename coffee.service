@@ -1,8 +1,10 @@
 [Unit]
-Description=Coffee statistics generator
+Description=Coffee statistics static site generator
 After=multi-user.target
 
 [Service]
+Environment="PYTHONUTF8=1"
+Environment="PYTHONIOENCODING=utf-8"
 Type=simple
 Restart=always
 User=coffee
